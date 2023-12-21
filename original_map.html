@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Leaflet Grid of Rectangles with Delete Option</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+
+<body>
+    <div id="map" style="width: 100%; height: 100vh;"></div>
+    <button id="deleteRectangles">四角形を消す</button>
+    <button id="sendCoordinates">座標を送信</button>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // 地図の初期化
+        // 大学のグラウンドを中心に設定
+        var map = L.map('map').setView([34.439946888534195, 132.4169722549677], 18);
+        var rectangles = []; // 四角形を保持するためのリスト
+        var coordinatesList = []; // 座標を保存するリスト
+        var previewRectangle = [];
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        map.on('mousemove', function (e) {
+            clearPreviewRectangles();
+            previewGrid(e.latlng, 3, 3, 20, 30);
+        });
+
+        map.on('click', function (e) {
+            clearRectangles(); // 既存の四角形を消去
+
+            // ここで個数と四角形一個の縦横を指定
+            drawGrid(e.latlng, 3, 3, 20, 30);
+        });
+
+        function drawGrid(startPoint, rows, cols, height, width) {
+            var latConv = 111320, // 緯度1度あたりの距離（メートル）
+                lngConv = 40075040 * Math.cos(startPoint.lat * Math.PI / 180) / 360; // 経度1度あたりの距離（メートル）
+            coordinatesList = []; // 四角形を描くたびにリストをクリア
+
+            for (var i = 0; i < rows; i++) {
+                for (var j = 0; j < cols; j++) {
+                    var index = (i % 2 === 0) ? j : (cols - 1 - j);  // ジグザグパターン
+                    var topLeftLat = startPoint.lat + (height / latConv) * i;
+                    var topLeftLng = startPoint.lng + (width / lngConv) * index;
+
+                    var rectBounds = calculateRectangle(L.latLng(topLeftLat, topLeftLng), height, width, latConv, lngConv);
+                    var rectangle = L.rectangle(rectBounds, { color: "#ff7800", weight: 1 }).addTo(map);
+                    rectangles.push(rectangle); // 四角形をリストに追加
+
+                    var center = rectangle.getBounds().getCenter();
+                    coordinatesList.push({ lat: center.lat, lng: center.lng });
+                }
+            }
+        }
+
+        function previewGrid(startPoint, rows, cols, height, width) {
+            var latConv = 111320, // 緯度1度あたりの距離（メートル）
+                lngConv = 40075040 * Math.cos(startPoint.lat * Math.PI / 180) / 360; // 経度1度あたりの距離（メートル）
+            previewRectangle = []; // 四角形を描くたびにリストをクリア
+
+            for (var i = 0; i < rows; i++) {
+                for (var j = 0; j < cols; j++) {
+                    var index = (i % 2 === 0) ? j : (cols - 1 - j);  // ジグザグパターン
+                    var topLeftLat = startPoint.lat + (height / latConv) * i;
+                    var topLeftLng = startPoint.lng + (width / lngConv) * index;
+
+                    var rectBounds = calculateRectangle(L.latLng(topLeftLat, topLeftLng), height, width, latConv, lngConv);
+                    var rectangle = L.rectangle(rectBounds, { color: "#ff7800", weight: 1 }).addTo(map);
+                    previewRectangle.push(rectangle); // 四角形をリストに追加
+                }
+            }
+        }
+
+        function calculateRectangle(startPoint, height, width, latConv, lngConv) {
+            var halfHeight = height / 2 / latConv;
+            var halfWidth = width / 2 / lngConv;
+
+            var southWest = L.latLng(startPoint.lat - halfHeight, startPoint.lng - halfWidth);
+            var northEast = L.latLng(startPoint.lat + halfHeight, startPoint.lng + halfWidth);
+
+            return [southWest, northEast];
+        }
+
+        function clearRectangles() {
+            for (var i = 0; i < rectangles.length; i++) {
+                map.removeLayer(rectangles[i]);
+            }
+            rectangles = []; // 四角形のリストをクリア
+        }
+
+        function clearPreviewRectangles() {
+            for (var i = 0; i < previewRectangle.length; i++) {
+                map.removeLayer(previewRectangle[i]);
+            }
+            previewRectangle = []; // 四角形のリストをクリア
+        }
+
+        function postCoordinatesList(coordinatesList) {
+            let method = "POST";
+            let body = JSON.stringify(coordinatesList);
+            let headers = { "Content-Type": "application/json" };
+
+            fetch("/post_coordinates_list", { method, headers, body })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        throw new Error();
+                    }
+                })
+                .then(text => console.log(text))
+                .catch(error => console.error(error));
+        }
+
+        // 座標を送信するボタンのイベントリスナー
+        document.getElementById('sendCoordinates').onclick = function () {
+            postCoordinatesList(coordinatesList);
+        };
+
+        document.getElementById('deleteRectangles').onclick = function () {
+            clearRectangles();
+        };
+    </script>
+</body>
+
+</html>
