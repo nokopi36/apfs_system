@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # setting.pyに書いてある変数をもとに新しくmapを作る
 def init_map():
-    with open(setting.original_map_path, "r") as original_file:
+    with open(setting.original_map_path, "r", encoding="utf-8") as original_file:
         content = original_file.read()
 
     fov_radians = radians(setting.fov_degrees)
@@ -30,7 +30,7 @@ def init_map():
         )
     )
 
-    with open(setting.new_map_path, "w") as new_file:
+    with open(setting.new_map_path, "w", encoding="utf-8") as new_file:
         new_file.write(content)
 
 
@@ -56,7 +56,7 @@ def send_file():
 @app.route("/")
 def index():
     init_map()
-    with open(setting.new_map_path) as file:
+    with open(setting.new_map_path, encoding="utf-8") as file:
         html_content = file.read()
     return render_template_string(html_content)
 
@@ -64,7 +64,7 @@ def index():
 @app.route("/post_coordinates_list", methods=["POST"])
 def post_coordinates():
     data = request.json
-    with open(setting.send_file_name, "w") as file:
+    with open(setting.send_file_name, "w", encoding="utf-8") as file:
         for coordinate in data:
             lat = coordinate["lat"]
             lng = coordinate["lng"]
