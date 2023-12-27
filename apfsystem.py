@@ -15,6 +15,7 @@ def main():
     start_time = time.perf_counter()
     now = datetime.datetime.now()
     current_time = now.strftime("%Y-%m-%d-%H-%M")
+    remove_non_matching_image(setting.detect_img_path)
     rename_files(setting.detect_img_path, 1)
     get_and_save_all_images_exif(setting.detect_img_path)
     split_result_dir = os.path.join(setting.split_img_path, current_time)
@@ -28,6 +29,21 @@ def main():
     end_time = time.perf_counter()
     diff_time = end_time - start_time
     print(f"実行時間: {diff_time}")
+
+
+# 指定した解像度の画像でなければ削除する
+def remove_non_matching_image(
+    directory,
+    target_resolution=(setting.img_width, setting.img_height),
+):
+    for filename in os.listdir(directory):
+        if filename.lower().endswith((".png", ".jpg", ".jpeg")):
+            image_path = os.path.join(directory, filename)
+            with Image.open(image_path) as img:  # 画像の解像度をチェック
+                if img.size != target_resolution:
+                    img.close()  # 解像度が一致しない場合、画像を削除
+                    os.remove(image_path)
+                    print(f"Deleted {filename}")
 
 
 # フォルダ内のすべてのファイルの名前を1からの連番に変更
