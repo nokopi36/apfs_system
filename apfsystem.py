@@ -8,9 +8,11 @@ import re
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 import datetime
+import time
 
 
 def main():
+    start_time = time.perf_counter()
     now = datetime.datetime.now()
     current_time = now.strftime("%Y-%m-%d-%H-%M")
     rename_files(setting.detect_img_path, 1)
@@ -23,6 +25,9 @@ def main():
     detection_resulr_dir = os.path.join(setting.detect_result_path, current_time)
     combine_images_and_txt(detection_resulr_dir, setting.detect_img_path)
     detected_object_location(setting.detect_img_path)
+    end_time = time.perf_counter()
+    diff_time = end_time - start_time
+    print(f"実行時間: {diff_time}")
 
 
 # フォルダ内のすべてのファイルの名前を1からの連番に変更
