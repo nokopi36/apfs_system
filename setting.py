@@ -21,7 +21,7 @@ sercer_port = 12345
 send_file_name = "shotPoint.txt"
 # ドローンの高度
 drone_altitude = 50
-# 横、縦それぞれ何枚撮影するか(例：width=3,height=3だと3x3の9枚)
+# 横、縦それぞれ何分割するか(例：width=3,height=3だと3x3の9枚)
 grid_size_width = 3
 grid_size_height = 3
 
