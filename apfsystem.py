@@ -5,7 +5,7 @@ import setting
 import pyproj
 from math import atan2, degrees, sqrt, radians, tan
 import re
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from PIL.ExifTags import TAGS, GPSTAGS
 import datetime
 import time
@@ -250,6 +250,7 @@ def combine_images_and_txt(
 
 
 def detected_object_location(directory):
+    font = ImageFont.truetype("arial.ttf", 96)
     for file_name in os.listdir(directory):
         if file_name.endswith(".txt") and not file_name.endswith("_combine.txt"):
             base_name = file_name.split(".")[0]
@@ -261,12 +262,17 @@ def detected_object_location(directory):
             # 対応する物体位置ファイルの存在確認
             combine_file_name = f"{base_name}_combine.txt"
             if combine_file_name in os.listdir(directory):
+                combined_image_path = os.path.join(
+                    directory, f"{base_name}_combine.jpg"
+                )
+                combined_image = Image.open(combined_image_path)
                 with open(os.path.join(directory, combine_file_name), "r") as file:
                     # 新しい緯度経度をファイルに保存
                     location_file_name = os.path.join(
                         directory, f"{base_name}_location.txt"
                     )
                     with open(location_file_name, "w") as location_file:
+                        location_index = 1
                         for line in file:
                             object_x_px, object_y_px = map(int, line.split())
                             new_latitude, new_longitude = calculate_location(
@@ -275,7 +281,18 @@ def detected_object_location(directory):
                                 object_x_px,
                                 object_y_px,
                             )
-                            location_file.write(f"{new_latitude} {new_longitude}\n")
+                            location_file.write(
+                                f"{location_index} {new_latitude} {new_longitude}\n"
+                            )
+                            draw = ImageDraw.Draw(combined_image)
+                            draw.text(
+                                (object_x_px, object_y_px),
+                                str(location_index),
+                                (0, 0, 255),
+                                font=font,
+                            )
+                            location_index += 1
+                combined_image.save(combined_image_path)
 
 
 def calculate_location(center_latitude, center_longitude, object_x_px, object_y_px):
