@@ -24,6 +24,8 @@ drone_altitude = 50
 # 横、縦それぞれ何分割するか(例：width=3,height=3だと3x3の9枚)
 grid_size_width = 3
 grid_size_height = 3
+# 物体検出後、androidに送信したいlocationのファイル
+result_location_file = f"{detect_img_path}/1_location.txt"
 
 # DJI Mavic2 Enterprise DUALのカメラスペック
 sensor_width_mm = 6.287  # センサーサイズの幅（ミリメートル）
