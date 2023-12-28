@@ -282,7 +282,7 @@ def detected_object_location(directory):
                                 object_y_px,
                             )
                             location_file.write(
-                                f"{location_index} {new_latitude} {new_longitude}\n"
+                                f"{new_latitude} {new_longitude} {location_index}\n"
                             )
                             draw = ImageDraw.Draw(combined_image)
                             draw.text(
