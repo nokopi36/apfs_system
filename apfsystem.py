@@ -40,27 +40,36 @@ def remove_non_matching_image(
         if filename.lower().endswith((".png", ".jpg", ".jpeg")):
             image_path = os.path.join(directory, filename)
             with Image.open(image_path) as img:  # 画像の解像度をチェック
-                if img.size != target_resolution:
-                    img.close()  # 解像度が一致しない場合、画像を削除
-                    os.remove(image_path)
-                    print(f"Deleted {filename}")
+                if img.size == target_resolution:
+                    continue
+            # 解像度が一致しない場合、画像を削除
+            os.remove(image_path)
+            print(f"Deleted {filename}")
 
 
 # フォルダ内のすべてのファイルの名前を1からの連番に変更
 def rename_files(directory, start_number):
     # フォルダ内のすべてのファイルを取得
     files = os.listdir(directory)
-    # PNGとTXTファイルのみをフィルタリング
-    jpg_files = sorted([f for f in files if f.endswith(".jpg")])
+    # 画像ファイルの拡張子リスト（小文字で）
+    image_extensions = [".jpg", ".jpeg", ".png"]
+    # 画像ファイルのみをフィルタリング
+    image_files = sorted(
+        [f for f in files if any(f.lower().endswith(ext) for ext in image_extensions)]
+    )
 
     # ファイルをリネーム
     new_number = start_number
-    for jpg in jpg_files:
+    for img_file in image_files:
+        # 拡張子を取得（元のファイル名の拡張子を保持）
+        ext = os.path.splitext(img_file)[1]
         # 新しいファイル名を生成
-        new_jpg_name = f"{new_number}.jpg"
+        new_file_name = f"{new_number}{ext}"
 
         # ファイル名を変更
-        os.rename(os.path.join(directory, jpg), os.path.join(directory, new_jpg_name))
+        os.rename(
+            os.path.join(directory, img_file), os.path.join(directory, new_file_name)
+        )
 
         new_number += 1
 
