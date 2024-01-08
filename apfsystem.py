@@ -215,7 +215,7 @@ def combine_images_and_txt(
         os.makedirs(output_dir)
 
     # 正規表現パターンを定義（'数字_数字.jpg'の形式）
-    pattern = re.compile(r"\d+_\d+\.jpg")
+    pattern = re.compile(r"\d+_\d+\.JPG")
 
     for file in os.listdir(input_dir):
         if pattern.match(file):
