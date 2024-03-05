@@ -8,9 +8,9 @@ new_map_path = "map.html"
 
 # システムを動かすための設定
 # 使うモデルの場所
-detect_model = "weight/1280_33Y20_0.3best.pt"
+detect_model = "weight/1280_33best0.8.pt"
 # 物体検出を行いたい画像の保存場所
-detect_img_path = "systemtest"
+detect_img_path = "resource2"
 # 物体検出の結果を保存する場所
 detect_result_path = "detection"
 # detect_img_pathの画像を分割した結果を保存する場所

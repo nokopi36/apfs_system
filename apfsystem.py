@@ -231,7 +231,7 @@ def combine_images_and_txt(
 
             # 画像とテキストファイルの組み合わせを処理
             for i in range(grid_size[0] * grid_size[1]):
-                img_path = os.path.join(input_dir, f"{base_name}_{i + 1}.jpg")
+                img_path = os.path.join(input_dir, f"{base_name}_{i + 1}.JPG")
                 txt_path = os.path.join(input_dir, f"{base_name}_{i + 1}.txt")
 
                 if os.path.exists(img_path):
@@ -259,7 +259,9 @@ def combine_images_and_txt(
 
 
 def detected_object_location(directory):
-    font = ImageFont.truetype("arial.ttf", 96)
+    font = ImageFont.truetype(
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc", 96
+    )
     for file_name in os.listdir(directory):
         if file_name.endswith(".txt") and not file_name.endswith("_combine.txt"):
             base_name = file_name.split(".")[0]
